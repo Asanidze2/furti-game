@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ფურთი</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Lobby screen -->
+  <div id="lobbyScreen" class="lobby-screen">
+    <div class="lobby-card">
+      <h1>ფურთი</h1>
+
+      <p class="lobby-subtitle">
+        შექმენი ოთახი ან შეუერთდი მეგობარს ოთახის კოდით.
+      </p>
+
+      <div class="lobby-actions">
+        <button id="createRoomBtn">ოთახის შექმნა</button>
+
+        <div class="join-box">
+          <input id="roomCodeInput" type="text" placeholder="ოთახის კოდი" />
+          <button id="joinRoomBtn">ოთახში შესვლა</button>
+        </div>
+      </div>
+
+      <div id="lobbyMessage" class="lobby-message">
+        ონლაინ რეჟიმი მზადდება. ჯერ ეს არის ლოკალური სატესტო ოთახი.
+      </div>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="gameScreen" class="game hidden">
+    <h1>ფურთი</h1>
+
+    <div class="room-info">
+      <div>ოთახი: <span id="roomCodeDisplay">----</span></div>
+      <div>შენ ხარ: <span id="playerRoleDisplay">----</span></div>
+    </div>
+
+    <div class="info">
+      <p>
+        აირჩიე შენი ერთი კარტი და მაგიდიდან ერთი ან რამდენიმე კარტი.
+        თუ ჯამი გამოვა 11 — წაიღებ.
+      </p>
+      <p id="message">თამაში დაიწყო</p>
+    </div>
+
+    <div class="score-panel">
+      <div class="player-box player-you">
+        <div class="player-title">შენ</div>
+
+        <div class="rounds-won">
+          <span id="playerRoundsCount">0</span>
+        </div>
+
+        <div class="small-label">მოგებული რაუნდი</div>
+
+        <div class="taken-badge">
+          აღებული კარტები: <span id="playerTakenCount">0</span>
+        </div>
+      </div>
+
+      <div class="center-box">
+        <div class="round-box">
+          <div class="small-label">რაუნდი</div>
+
+          <div class="round-value">
+            <span id="roundCount">1</span><span class="round-total">/13</span>
+          </div>
+        </div>
+
+        <div class="deck-box">
+          დასტაში დარჩა: <span id="deckCount">0</span>
+        </div>
+      </div>
+
+      <div class="player-box player-opponent">
+        <div class="player-title">მოწინააღმდეგე</div>
+
+        <div class="rounds-won">
+          <span id="computerRoundsCount">0</span>
+        </div>
+
+        <div class="small-label">მოგებული რაუნდი</div>
+
+        <div class="taken-badge">
+          აღებული კარტები: <span id="computerTakenCount">0</span>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>მოწინააღმდეგის კარტები</h2>
+      <div id="computerCards" class="cards"></div>
+    </section>
+
+    <section>
+      <h2>მაგიდა</h2>
+      <div id="tableCards" class="cards"></div>
+    </section>
+
+    <section>
+      <h2>შენი კარტები</h2>
+      <div id="playerCards" class="cards"></div>
+    </section>
+
+    <div class="actions">
+      <button id="takeBtn">წაღება</button>
+      <button id="dropBtn">კარტის დადება</button>
+      <button id="historyBtn" class="secondary-btn">რაუნდების ისტორია</button>
+    </div>
+
+    <div id="historyPanel" class="history-panel hidden">
+      <div class="history-header">
+        <h3>რაუნდების ისტორია</h3>
+        <button id="closeHistoryBtn" class="close-btn">×</button>
+      </div>
+
+      <div id="historyList" class="history-list">
+        <p class="empty-history">ისტორია ჯერ ცარიელია</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
