@@ -531,6 +531,8 @@ async function takeCards() {
   const state = cloneState(gameState);
   const playerRank = selectedPlayerCard.name;
 
+  const playedCardText = `${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
+
   if (playerRank === "J") {
     const hasQueenOrKing = selectedTableCards.some(card => card.name === "Q" || card.name === "K");
 
@@ -541,7 +543,7 @@ async function takeCards() {
 
     captureCardsInState(state, myPlayerId);
     state.lastTaker = myPlayerId;
-    state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
+    state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
     return;
@@ -557,7 +559,7 @@ async function takeCards() {
 
     captureCardsInState(state, myPlayerId);
     state.lastTaker = myPlayerId;
-    state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
+    state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
     return;
@@ -573,7 +575,7 @@ async function takeCards() {
 
     captureCardsInState(state, myPlayerId);
     state.lastTaker = myPlayerId;
-    state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
+    state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
     return;
@@ -588,7 +590,7 @@ async function takeCards() {
 
   captureCardsInState(state, myPlayerId);
   state.lastTaker = myPlayerId;
-  state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
+  state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
   endTurnInState(state);
 
   await saveState(state);
