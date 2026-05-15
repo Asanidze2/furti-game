@@ -1232,3 +1232,33 @@ button:disabled {
     border-radius: 11px;
   }
 }
+/* ===== Compact Status Bar ===== */
+
+.status-bar {
+  max-width: 760px;
+  margin: 10px auto 14px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  text-align: center;
+}
+
+.status-bar .message {
+  margin: 0;
+  color: #ffd166;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+@media (max-width: 600px) {
+  .status-bar {
+    margin: 8px 0 10px;
+    padding: 7px 10px;
+  }
+
+  .status-bar .message {
+    font-size: 12px;
+  }
+}
