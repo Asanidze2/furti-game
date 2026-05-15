@@ -1082,6 +1082,12 @@ function showPlayedCardAnimation(card) {
     cardDiv.classList.add("red");
   }
 
+  if (card.action === "take") {
+    cardDiv.classList.add("take-animation");
+  } else {
+    cardDiv.classList.add("drop-animation");
+  }
+
   cardDiv.textContent = `${card.name}${card.suit}`;
 
   playedCardAnimation.appendChild(cardDiv);
@@ -1097,7 +1103,7 @@ function showPlayedCardAnimation(card) {
     playedCardAnimation.classList.add("hidden");
     playedCardAnimation.classList.remove("show");
     playedCardAnimation.innerHTML = "";
-  }, 1100);
+  }, 1000);
 }
 
 function showLocalMessage(text) {
