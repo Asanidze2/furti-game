@@ -1160,15 +1160,15 @@ button:disabled {
 .join-box {
   margin-top: 0;
 }
-/* ===== Played Card Animation: Strong Table Effect ===== */
+/* ===== Played Card Animation: Table-Positioned Effect ===== */
 
 .played-card-animation {
   position: fixed;
   left: 50%;
-  top: 52%;
-  transform: translate(-50%, -50%);
+  top: 50%;
   z-index: 9998;
   pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .played-card-animation.hidden {
@@ -1198,25 +1198,24 @@ button:disabled {
   color: #c9182b;
 }
 
-/* როცა კარტს დებს */
 .floating-played-card.drop-animation {
-  animation: cardDropToTable 1.15s ease-out forwards;
+  animation: cardDropIntoTable 1.15s ease-out forwards;
 }
 
-/* როცა კარტით ჭრის/წაიღებს */
 .floating-played-card.take-animation {
   animation: cardTakeFromTable 1.15s ease-out forwards;
 }
 
-@keyframes cardDropToTable {
+/* კარტის დადება — ზემოდან მაგიდაზე ჩამოდის */
+@keyframes cardDropIntoTable {
   0% {
     opacity: 0;
-    transform: translateY(-220px) scale(0.55) rotate(-16deg);
+    transform: translateY(-170px) scale(0.55) rotate(-14deg);
   }
 
   25% {
     opacity: 1;
-    transform: translateY(-90px) scale(1.08) rotate(8deg);
+    transform: translateY(-75px) scale(1.08) rotate(7deg);
   }
 
   60% {
@@ -1226,47 +1225,44 @@ button:disabled {
 
   82% {
     opacity: 1;
-    transform: translateY(8px) scale(0.98) rotate(0deg);
+    transform: translateY(6px) scale(0.98) rotate(0deg);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(18px) scale(0.92) rotate(0deg);
+    transform: translateY(14px) scale(0.92) rotate(0deg);
   }
 }
 
+/* წაღება — მაგიდიდან ზემოთ ქრება */
 @keyframes cardTakeFromTable {
   0% {
     opacity: 0;
-    transform: translateY(40px) scale(0.65) rotate(0deg);
+    transform: translateY(28px) scale(0.65) rotate(0deg);
   }
 
   20% {
     opacity: 1;
-    transform: translateY(0) scale(1.15) rotate(-5deg);
+    transform: translateY(0) scale(1.16) rotate(-5deg);
   }
 
   50% {
     opacity: 1;
-    transform: translateY(-20px) scale(1.05) rotate(4deg);
+    transform: translateY(-18px) scale(1.05) rotate(4deg);
   }
 
   80% {
     opacity: 1;
-    transform: translateY(-70px) scale(0.92) rotate(0deg);
+    transform: translateY(-64px) scale(0.92) rotate(0deg);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(-130px) scale(0.65) rotate(0deg);
+    transform: translateY(-115px) scale(0.65) rotate(0deg);
   }
 }
 
 @media (max-width: 600px) {
-  .played-card-animation {
-    top: 55%;
-  }
-
   .floating-played-card {
     width: 68px;
     height: 94px;
