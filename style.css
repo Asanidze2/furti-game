@@ -525,3 +525,203 @@ button:disabled {
 .rules-points strong {
   color: #ffd166;
 }
+/* ===== Better Mobile Layout ===== */
+
+@media (max-width: 600px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .game {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 14px 24px;
+  }
+
+  h1 {
+    font-size: 34px;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-size: 18px;
+    margin-top: 14px;
+    margin-bottom: 7px;
+  }
+
+  .room-info {
+    flex-direction: column;
+    gap: 3px;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .info {
+    padding: 10px 12px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+  }
+
+  .info p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  /* Score panel becomes compact on phone */
+  .score-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0 14px;
+  }
+
+  .center-box {
+    grid-column: 1 / -1;
+    order: -1;
+    min-height: auto;
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  .player-box {
+    min-height: auto;
+    padding: 11px 12px;
+    border-radius: 14px;
+  }
+
+  .player-box::before {
+    width: 80px;
+    height: 80px;
+    top: -34px;
+    right: -34px;
+  }
+
+  .player-title {
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  .rounds-won {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .small-label {
+    font-size: 11px;
+  }
+
+  .taken-badge {
+    margin-top: 7px;
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  .player-opponent {
+    text-align: left;
+    border-right: none;
+    border-left: 4px solid #ffd166;
+  }
+
+  .round-value {
+    font-size: 26px;
+  }
+
+  .round-total {
+    font-size: 15px;
+  }
+
+  .deck-box {
+    display: inline-block;
+    align-self: center;
+    font-size: 12px;
+    padding: 5px 9px;
+  }
+
+  /* Cards */
+  .cards {
+    min-height: 78px;
+    padding: 9px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+
+  .card {
+    width: 54px;
+    height: 74px;
+    font-size: 19px;
+    border-radius: 9px;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  .card.selected {
+    transform: translateY(-5px);
+  }
+
+  /* Buttons */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: 12px;
+  }
+
+  .actions button {
+    width: 100%;
+    padding: 12px 10px;
+    font-size: 14px;
+  }
+
+  #historyBtn {
+    grid-column: 1 / -1;
+  }
+
+  /* Lobby mobile */
+  .lobby-screen {
+    padding: 18px;
+  }
+
+  .lobby-card {
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  .lobby-card h1 {
+    font-size: 44px;
+  }
+
+  .lobby-subtitle {
+    font-size: 14px;
+  }
+
+  .join-box {
+    flex-direction: column;
+  }
+
+  .rules-points {
+    grid-template-columns: 1fr;
+  }
+
+  .rules-text {
+    font-size: 13px;
+  }
+
+  .rules-points span {
+    font-size: 12px;
+    padding: 7px;
+  }
+
+  /* History panel on phone */
+  .history-panel {
+    top: auto;
+    right: 10px;
+    left: 10px;
+    bottom: 10px;
+    width: auto;
+    max-height: 55vh;
+    border-radius: 16px;
+  }
+}
