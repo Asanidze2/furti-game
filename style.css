@@ -1099,3 +1099,49 @@ button:disabled {
     opacity: 0.75;
   }
 }
+.round-select-box {
+  margin: 14px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.round-select-box label {
+  color: #ffd166;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.round-select-box select {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(3, 43, 26, 0.85);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
+.round-select-box select:focus {
+  border-color: #ffd166;
+  box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.18);
+}
+
+@media (max-width: 600px) {
+  .round-select-box {
+    margin: 12px 0 10px;
+  }
+
+  .round-select-box label {
+    font-size: 13px;
+  }
+
+  .round-select-box select {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
