@@ -57,6 +57,7 @@ const createRoomBtn = document.getElementById("createRoomBtn");
 const joinRoomBtn = document.getElementById("joinRoomBtn");
 const roomCodeInput = document.getElementById("roomCodeInput");
 const lobbyMessage = document.getElementById("lobbyMessage");
+const roundSelect = document.getElementById("roundSelect");
 
 const roomCodeDisplay = document.getElementById("roomCodeDisplay");
 const playerRoleDisplay = document.getElementById("playerRoleDisplay");
@@ -68,6 +69,7 @@ const tableCardsDiv = document.getElementById("tableCards");
 const message = document.getElementById("message");
 
 const roundCount = document.getElementById("roundCount");
+const maxRoundCount = document.getElementById("maxRoundCount");
 const playerRoundsCount = document.getElementById("playerRoundsCount");
 const computerRoundsCount = document.getElementById("computerRoundsCount");
 
@@ -110,11 +112,12 @@ function generateRoomCode() {
   return code;
 }
 
-function createEmptyRoomState(code) {
+function createEmptyRoomState(code, maxRounds = 13) {
   return {
     code,
     status: "waiting",
     currentRound: 1,
+    maxRounds,
     currentTurn: "player1",
     lastTaker: null,
     roundFinished: false,
@@ -159,6 +162,16 @@ function normalizeGameState(state) {
   state.tableCards = toArray(state.tableCards);
   state.roundHistory = toArray(state.roundHistory);
 
+  state.maxRounds = Number(state.maxRounds) || 13;
+
+  if (state.maxRounds > 13) {
+    state.maxRounds = 13;
+  }
+
+  if (state.maxRounds < 1) {
+    state.maxRounds = 1;
+  }
+
   if (!state.players) {
     state.players = {};
   }
@@ -201,7 +214,8 @@ async function createRoom() {
     myPlayerId = "player1";
     updateOpponentId();
 
-    const emptyRoom = createEmptyRoomState(code);
+    const selectedMaxRounds = Math.min(13, Math.max(1, Number(roundSelect.value) || 13));
+    const emptyRoom = createEmptyRoomState(code, selectedMaxRounds);
 
     await set(roomRef, emptyRoom);
 
@@ -378,8 +392,6 @@ function startRoundInState(state) {
   state.players.player2.cards = state.deck.splice(0, 4);
   state.tableCards = state.deck.splice(0, 4);
 
-  // მხოლოდ რაუნდის საწყის მაგიდაზე არ ვუშვებთ ვალეტს.
-  // თუ მოთამაშემ თვითონ დადო ვალეტი, შემდეგ ის მაგიდაზე რჩება.
   replaceJacksOnInitialTableInState(state);
 
   state.lastActionText = `რაუნდი ${state.currentRound} დაიწყო`;
@@ -465,6 +477,7 @@ function renderCards() {
   });
 
   roundCount.textContent = gameState.currentRound;
+  maxRoundCount.textContent = gameState.maxRounds || 13;
 
   playerRoundsCount.textContent = myPlayer.roundsWon;
   computerRoundsCount.textContent = opponentPlayer.roundsWon;
@@ -533,9 +546,9 @@ function renderStatusMessage() {
     const turnText = getTurnText();
 
     if (gameState.lastActionText && gameState.lastActionText !== "ველოდებით მეორე მოთამაშეს") {
-      showLocalMessage(`${gameState.lastActionText} - ${turnText}`);
+      showLocalMessage(`${gameState.lastActionText} — ${turnText}`);
     } else {
-      showLocalMessage(`თამაში დაიწყო - ${turnText}`);
+      showLocalMessage(`თამაში დაიწყო — ${turnText}`);
     }
 
     return;
@@ -808,7 +821,7 @@ function finishRoundInState(state) {
     player2Score: roundResult.player2Score
   };
 
-  if (state.currentRound === 13) {
+  if (state.currentRound >= state.maxRounds) {
     state.gameFinished = true;
     state.status = "finished";
   }
@@ -820,7 +833,7 @@ function maybeScheduleNextRound() {
   if (myPlayerId !== "player1") return;
   if (!gameState.roundFinished) return;
   if (gameState.gameFinished) return;
-  if (gameState.currentRound >= 13) return;
+  if (gameState.currentRound >= gameState.maxRounds) return;
   if (nextRoundTimer) return;
 
   nextRoundTimer = setTimeout(async () => {
@@ -973,7 +986,7 @@ function renderHistory() {
 
     div.innerHTML = `
       <strong>რაუნდი ${item.round}:</strong>
-      ${resultText} - ${myScore}-${opponentScore}
+      ${resultText} — ${myScore}–${opponentScore}
     `;
 
     historyList.appendChild(div);
