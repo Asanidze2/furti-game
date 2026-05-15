@@ -1262,3 +1262,6 @@ button:disabled {
     font-size: 12px;
   }
 }
+.room-info.hidden-room-info {
+  display: none;
+}
