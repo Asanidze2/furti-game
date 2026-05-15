@@ -233,7 +233,7 @@ async function createRoom() {
     showGame();
     listenToRoom(roomCode);
 
-    showLocalMessage(`ოთახი შეიქმნა: ${roomCode}. გაუგზავნე ეს კოდი მეორე მოთამაშეს.`);
+    showLocalMessage("ველოდებით მეორე მოთამაშეს");
   } catch (error) {
     console.error(error);
     lobbyMessage.textContent = "ოთახის შექმნა ვერ მოხერხდა. შეამოწმე Console.";
@@ -540,7 +540,7 @@ function renderStatusMessage() {
   if (!gameState) return;
 
   if (gameState.status === "waiting") {
-    showLocalMessage(`ოთახი შეიქმნა: ${roomCode}. ველოდებით მეორე მოთამაშეს.`);
+    showLocalMessage("ველოდებით მეორე მოთამაშეს");
     return;
   }
 
@@ -555,14 +555,7 @@ function renderStatusMessage() {
   }
 
   if (gameState.status === "playing") {
-    const turnText = getTurnText();
-
-    if (gameState.lastActionText && gameState.lastActionText !== "ველოდებით მეორე მოთამაშეს") {
-      showLocalMessage(`${gameState.lastActionText} — ${turnText}`);
-    } else {
-      showLocalMessage(`თამაში დაიწყო — ${turnText}`);
-    }
-
+    showLocalMessage(getTurnText());
     return;
   }
 
@@ -932,7 +925,7 @@ function calculateRoundResultInState(state) {
 
 function getRoundFinishedMessage() {
   if (!gameState.lastRoundResult) {
-    return "რაუნდი დასრულდა. შემდეგი რაუნდი მალე დაიწყება.";
+    return "რაუნდი დასრულდა";
   }
 
   const result = gameState.lastRoundResult;
@@ -940,14 +933,14 @@ function getRoundFinishedMessage() {
   const opponentScore = myPlayerId === "player1" ? result.player2Score : result.player1Score;
 
   if (result.winner === null) {
-    return `რაუნდი ${gameState.currentRound} დასრულდა ფრედ: ${myScore}–${opponentScore}. შემდეგი რაუნდი მალე დაიწყება.`;
+    return `რაუნდი ფრედ დასრულდა: ${myScore}–${opponentScore}`;
   }
 
   if (result.winner === myPlayerId) {
-    return `რაუნდი ${gameState.currentRound} დასრულდა: ${myScore}–${opponentScore} შენს სასარგებლოდ. შემდეგი რაუნდი მალე დაიწყება.`;
+    return `რაუნდი შენ მოიგე: ${myScore}–${opponentScore}`;
   }
 
-  return `რაუნდი ${gameState.currentRound} დასრულდა: ${myScore}–${opponentScore} მოწინააღმდეგის სასარგებლოდ. შემდეგი რაუნდი მალე დაიწყება.`;
+  return `რაუნდი მოწინააღმდეგემ მოიგო: ${myScore}–${opponentScore}`;
 }
 
 function getFinalMessage() {
@@ -955,14 +948,14 @@ function getFinalMessage() {
   const opponentRoundsWon = getOpponentPlayer().roundsWon;
 
   if (myRoundsWon > opponentRoundsWon) {
-    return `თამაში დასრულდა. შენ მოიგე! რაუნდები: ${myRoundsWon}–${opponentRoundsWon}.`;
+    return `თამაში დასრულდა. შენ მოიგე! ${myRoundsWon}–${opponentRoundsWon}`;
   }
 
   if (opponentRoundsWon > myRoundsWon) {
-    return `თამაში დასრულდა. მოწინააღმდეგემ მოიგო. რაუნდები: ${myRoundsWon}–${opponentRoundsWon}.`;
+    return `თამაში დასრულდა. მოწინააღმდეგემ მოიგო ${myRoundsWon}–${opponentRoundsWon}`;
   }
 
-  return `თამაში დასრულდა ფრედ. რაუნდები: ${myRoundsWon}–${opponentRoundsWon}.`;
+  return `თამაში დასრულდა ფრედ ${myRoundsWon}–${opponentRoundsWon}`;
 }
 
 function countSuit(cards, suit) {
