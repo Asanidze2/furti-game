@@ -725,3 +725,151 @@ button:disabled {
     border-radius: 16px;
   }
 }
+/* ===== Compact Mobile Score Bar ===== */
+
+@media (max-width: 600px) {
+  .score-panel {
+    display: grid;
+    grid-template-columns: 1fr 0.9fr 1fr;
+    gap: 6px;
+    align-items: stretch;
+    margin: 8px 0 12px;
+  }
+
+  .center-box {
+    grid-column: auto;
+    order: 0;
+    min-height: 76px;
+    padding: 8px 6px;
+    border-radius: 14px;
+  }
+
+  .player-box {
+    min-height: 76px;
+    padding: 8px 7px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .player-box::before {
+    width: 58px;
+    height: 58px;
+    top: -24px;
+    right: -24px;
+    opacity: 0.45;
+  }
+
+  .player-title {
+    font-size: 12px;
+    line-height: 1.1;
+    margin-bottom: 3px;
+    white-space: nowrap;
+  }
+
+  .rounds-won {
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .small-label {
+    font-size: 9px;
+    line-height: 1.1;
+  }
+
+  .taken-badge {
+    margin-top: 5px;
+    padding: 4px 5px;
+    font-size: 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .player-opponent {
+    text-align: right;
+    border-left: none;
+    border-right: 3px solid #ffd166;
+  }
+
+  .player-main {
+    text-align: left;
+    border-left: 3px solid #ffd166;
+  }
+
+  .round-label {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .round-value {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .round-total {
+    font-size: 12px;
+  }
+
+  .deck-box {
+    margin-top: 6px;
+    padding: 4px 6px;
+    font-size: 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  h2 {
+    font-size: 17px;
+    margin-top: 11px;
+    margin-bottom: 6px;
+  }
+
+  .cards {
+    min-height: 70px;
+    padding: 8px;
+    gap: 7px;
+  }
+
+  .card {
+    width: 50px;
+    height: 68px;
+    font-size: 18px;
+  }
+
+  .actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .actions button {
+    padding: 11px 8px;
+    font-size: 13px;
+  }
+
+  #historyBtn {
+    grid-column: 1 / -1;
+    padding: 11px 8px;
+  }
+
+  .history-panel {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    top: auto;
+    bottom: 12px;
+    width: auto;
+    max-height: 45vh;
+    overflow-y: auto;
+    z-index: 999;
+  }
+
+  .history-header h3 {
+    font-size: 15px;
+  }
+
+  .history-item {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
