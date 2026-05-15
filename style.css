@@ -1160,12 +1160,12 @@ button:disabled {
 .join-box {
   margin-top: 0;
 }
-/* ===== Played Card Animation: Table Drop Effect ===== */
+/* ===== Played Card Animation: Strong Table Effect ===== */
 
 .played-card-animation {
   position: fixed;
   left: 50%;
-  top: 48%;
+  top: 52%;
   transform: translate(-50%, -50%);
   z-index: 9998;
   pointer-events: none;
@@ -1180,83 +1180,96 @@ button:disabled {
 }
 
 .floating-played-card {
-  width: 78px;
-  height: 108px;
-  border-radius: 12px;
+  width: 82px;
+  height: 114px;
+  border-radius: 13px;
   background: white;
   color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 900;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.55);
+  border: 3px solid #ffd166;
 }
 
 .floating-played-card.red {
   color: #c9182b;
 }
 
+/* როცა კარტს დებს */
 .floating-played-card.drop-animation {
-  animation: tableCardDrop 0.95s ease-out forwards;
+  animation: cardDropToTable 1.15s ease-out forwards;
 }
 
+/* როცა კარტით ჭრის/წაიღებს */
 .floating-played-card.take-animation {
-  animation: tableCardTake 0.95s ease-out forwards;
+  animation: cardTakeFromTable 1.15s ease-out forwards;
 }
 
-@keyframes tableCardDrop {
+@keyframes cardDropToTable {
   0% {
     opacity: 0;
-    transform: translateY(-120px) scale(0.65) rotate(-10deg);
+    transform: translateY(-220px) scale(0.55) rotate(-16deg);
   }
 
   25% {
     opacity: 1;
-    transform: translateY(-35px) scale(1.08) rotate(4deg);
-  }
-
-  65% {
-    opacity: 1;
-    transform: translateY(0) scale(1) rotate(0deg);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(22px) scale(0.96) rotate(0deg);
-  }
-}
-
-@keyframes tableCardTake {
-  0% {
-    opacity: 0;
-    transform: scale(0.75) rotate(-6deg);
-  }
-
-  25% {
-    opacity: 1;
-    transform: scale(1.12) rotate(3deg);
+    transform: translateY(-90px) scale(1.08) rotate(8deg);
   }
 
   60% {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+
+  82% {
+    opacity: 1;
+    transform: translateY(8px) scale(0.98) rotate(0deg);
   }
 
   100% {
     opacity: 0;
-    transform: scale(1.35) translateY(-18px) rotate(0deg);
+    transform: translateY(18px) scale(0.92) rotate(0deg);
+  }
+}
+
+@keyframes cardTakeFromTable {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.65) rotate(0deg);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateY(0) scale(1.15) rotate(-5deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.05) rotate(4deg);
+  }
+
+  80% {
+    opacity: 1;
+    transform: translateY(-70px) scale(0.92) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-130px) scale(0.65) rotate(0deg);
   }
 }
 
 @media (max-width: 600px) {
   .played-card-animation {
-    top: 52%;
+    top: 55%;
   }
 
   .floating-played-card {
-    width: 66px;
-    height: 92px;
+    width: 68px;
+    height: 94px;
     font-size: 24px;
     border-radius: 11px;
   }
