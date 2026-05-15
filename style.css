@@ -488,3 +488,40 @@ button:disabled {
     flex-direction: column;
   }
 }
+.rules-box {
+  text-align: left;
+  color: white;
+}
+
+.rules-title {
+  color: #ffd166;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.rules-text {
+  font-size: 14px;
+  line-height: 1.45;
+  opacity: 0.92;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.rules-points {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.rules-points span {
+  padding: 7px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  text-align: center;
+}
+
+.rules-points strong {
+  color: #ffd166;
+}
