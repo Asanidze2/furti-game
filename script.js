@@ -1075,6 +1075,14 @@ function showPlayedCardAnimation(card) {
 
   playedCardAnimation.innerHTML = "";
 
+  const tableRect = tableCardsDiv.getBoundingClientRect();
+
+  const tableCenterX = tableRect.left + tableRect.width / 2;
+  const tableCenterY = tableRect.top + tableRect.height / 2;
+
+  playedCardAnimation.style.left = `${tableCenterX}px`;
+  playedCardAnimation.style.top = `${tableCenterY}px`;
+
   const cardDiv = document.createElement("div");
   cardDiv.className = "floating-played-card";
 
@@ -1103,7 +1111,7 @@ function showPlayedCardAnimation(card) {
     playedCardAnimation.classList.add("hidden");
     playedCardAnimation.classList.remove("show");
     playedCardAnimation.innerHTML = "";
-  }, 1000);
+  }, 1150);
 }
 
 function showLocalMessage(text) {
