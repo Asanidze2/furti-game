@@ -533,9 +533,9 @@ function renderStatusMessage() {
     const turnText = getTurnText();
 
     if (gameState.lastActionText && gameState.lastActionText !== "ველოდებით მეორე მოთამაშეს") {
-      showLocalMessage(`${gameState.lastActionText} — ${turnText}`);
+      showLocalMessage(`${gameState.lastActionText} - ${turnText}`);
     } else {
-      showLocalMessage(`თამაში დაიწყო — ${turnText}`);
+      showLocalMessage(`თამაში დაიწყო - ${turnText}`);
     }
 
     return;
@@ -973,7 +973,7 @@ function renderHistory() {
 
     div.innerHTML = `
       <strong>რაუნდი ${item.round}:</strong>
-      ${resultText} — ${myScore}–${opponentScore}
+      ${resultText} - ${myScore}-${opponentScore}
     `;
 
     historyList.appendChild(div);
