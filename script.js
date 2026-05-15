@@ -64,6 +64,7 @@ const roundSelect = document.getElementById("roundSelect");
 
 const roomCodeDisplay = document.getElementById("roomCodeDisplay");
 const playerRoleDisplay = document.getElementById("playerRoleDisplay");
+const roomInfo = document.querySelector(".room-info");
 
 const playerCardsDiv = document.getElementById("playerCards");
 const computerCardsDiv = document.getElementById("computerCards");
@@ -540,16 +541,23 @@ function renderStatusMessage() {
   if (!gameState) return;
 
   if (gameState.status === "waiting") {
+    roomInfo.classList.remove("hidden-room-info");
     showLocalMessage("ველოდებით მეორე მოთამაშეს");
     return;
   }
 
+  if (gameState.status === "playing") {
+    roomInfo.classList.add("hidden-room-info");
+  }
+
   if (gameState.gameFinished) {
+    roomInfo.classList.add("hidden-room-info");
     showLocalMessage(getFinalMessage());
     return;
   }
 
   if (gameState.roundFinished) {
+    roomInfo.classList.add("hidden-room-info");
     showLocalMessage(getRoundFinishedMessage());
     return;
   }
