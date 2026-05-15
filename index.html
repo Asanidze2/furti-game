@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ფურთი</title>
-  <link rel="stylesheet" href="style.css?v=rounds1" />
+  <link rel="stylesheet" href="style.css?v=animation1" />
+  <script type="module" src="script.js?v=animation1"></script>
 </head>
 <body>
   <div id="lobbyScreen" class="lobby-screen">
@@ -67,6 +68,8 @@
       </p>
       <p id="message" class="message">თამაში იწყება...</p>
     </div>
+
+    <div id="playedCardAnimation" class="played-card-animation hidden"></div>
 
     <div class="score-panel">
       <div class="player-box player-main">
@@ -131,7 +134,5 @@
       </div>
     </div>
   </div>
-
-  <script type="module" src="script.js?v=rounds1"></script>
 </body>
 </html>
