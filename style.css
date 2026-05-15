@@ -1160,3 +1160,75 @@ button:disabled {
 .join-box {
   margin-top: 0;
 }
+/* ===== Played Card Animation ===== */
+
+.played-card-animation {
+  position: fixed;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  z-index: 9998;
+  pointer-events: none;
+}
+
+.played-card-animation.hidden {
+  display: none;
+}
+
+.played-card-animation.show {
+  display: block;
+}
+
+.floating-played-card {
+  width: 78px;
+  height: 108px;
+  border-radius: 12px;
+  background: white;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  animation: playedCardDrop 1.05s ease-out forwards;
+}
+
+.floating-played-card.red {
+  color: #c9182b;
+}
+
+@keyframes playedCardDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-70px) scale(0.72) rotate(-8deg);
+  }
+
+  25% {
+    opacity: 1;
+    transform: translateY(0) scale(1.08) rotate(3deg);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(8px) scale(1) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92) rotate(0deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .played-card-animation {
+    top: 45%;
+  }
+
+  .floating-played-card {
+    width: 66px;
+    height: 92px;
+    font-size: 24px;
+    border-radius: 11px;
+  }
+}
