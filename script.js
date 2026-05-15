@@ -378,7 +378,9 @@ function startRoundInState(state) {
   state.players.player2.cards = state.deck.splice(0, 4);
   state.tableCards = state.deck.splice(0, 4);
 
-  replaceJacksOnTableInState(state);
+  // მხოლოდ რაუნდის საწყის მაგიდაზე არ ვუშვებთ ვალეტს.
+  // თუ მოთამაშემ თვითონ დადო ვალეტი, შემდეგ ის მაგიდაზე რჩება.
+  replaceJacksOnInitialTableInState(state);
 
   state.lastActionText = `რაუნდი ${state.currentRound} დაიწყო`;
 }
@@ -396,19 +398,15 @@ function dealNewHandIfNeededInState(state) {
   }
 }
 
-function replaceJacksOnTableInState(state) {
+function replaceJacksOnInitialTableInState(state) {
   normalizeGameState(state);
 
   for (let i = 0; i < state.tableCards.length; i++) {
-    if (state.tableCards[i].name === "J" && state.deck.length > 0) {
+    while (state.tableCards[i] && state.tableCards[i].name === "J" && state.deck.length > 0) {
       state.deck.push(state.tableCards[i]);
-      state.tableCards[i] = state.deck.shift();
       shuffleDeck(state.deck);
+      state.tableCards[i] = state.deck.shift();
     }
-  }
-
-  if (state.tableCards.some(card => card.name === "J") && state.deck.length > 0) {
-    replaceJacksOnTableInState(state);
   }
 }
 
@@ -726,11 +724,6 @@ async function dropCard() {
     return;
   }
 
-  if (selectedPlayerCard.name === "J") {
-    showLocalMessage("ვალეტი მაგიდაზე არ იდება — ვალეტით წაღება უნდა სცადო");
-    return;
-  }
-
   const state = cloneState(gameState);
 
   const cardToDrop =
@@ -743,7 +736,10 @@ async function dropCard() {
   }
 
   state.tableCards.push(cardToDrop);
-  state.players[myPlayerId].cards = state.players[myPlayerId].cards.filter(card => card.id !== cardToDrop.id);
+
+  state.players[myPlayerId].cards = state.players[myPlayerId].cards.filter(card => {
+    return card.id !== cardToDrop.id;
+  });
 
   state.lastActionText = `${getPlayerName(myPlayerId)}-მა კარტი დადო: ${cardToDrop.name}${cardToDrop.suit}`;
 
@@ -759,7 +755,6 @@ function endTurnInState(state) {
   normalizeGameState(state);
 
   dealNewHandIfNeededInState(state);
-  replaceJacksOnTableInState(state);
 
   if (isRoundOverInState(state)) {
     finishRoundInState(state);
