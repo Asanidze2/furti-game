@@ -50,6 +50,9 @@ let nextRoundTimer = null;
 let selectedPlayerCard = null;
 let selectedTableCards = [];
 
+let lastAnimatedActionId = null;
+let firstSnapshotReceived = false;
+
 const lobbyScreen = document.getElementById("lobbyScreen");
 const gameScreen = document.getElementById("gameScreen");
 
@@ -67,6 +70,7 @@ const computerCardsDiv = document.getElementById("computerCards");
 const tableCardsDiv = document.getElementById("tableCards");
 
 const message = document.getElementById("message");
+const playedCardAnimation = document.getElementById("playedCardAnimation");
 
 const roundCount = document.getElementById("roundCount");
 const maxRoundCount = document.getElementById("maxRoundCount");
@@ -126,6 +130,7 @@ function createEmptyRoomState(code, maxRounds = 13) {
     tableCards: [],
     roundHistory: [],
     lastActionText: "ველოდებით მეორე მოთამაშეს",
+    lastPlayedCard: null,
     players: {
       player1: {
         joined: true,
@@ -214,6 +219,9 @@ async function createRoom() {
     myPlayerId = "player1";
     updateOpponentId();
 
+    lastAnimatedActionId = null;
+    firstSnapshotReceived = false;
+
     const selectedMaxRounds = Math.min(13, Math.max(1, Number(roundSelect.value) || 13));
     const emptyRoom = createEmptyRoomState(code, selectedMaxRounds);
 
@@ -259,6 +267,9 @@ async function joinRoom() {
     room.players.player2.joined = true;
     room.status = "playing";
 
+    lastAnimatedActionId = null;
+    firstSnapshotReceived = false;
+
     startNewGameInState(room);
 
     roomCode = inputCode;
@@ -302,6 +313,7 @@ function listenToRoom(code) {
 
     renderCards();
     renderStatusMessage();
+    maybeShowPlayedCardAnimation();
 
     maybeScheduleNextRound();
   });
@@ -593,6 +605,7 @@ async function takeCards() {
   const state = cloneState(gameState);
   const playerRank = selectedPlayerCard.name;
   const playedCardText = `${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
+  const playedCardInfo = createPlayedCardInfo(selectedPlayerCard, myPlayerId, "take");
 
   if (playerRank === "J") {
     const hasQueenOrKing = selectedTableCards.some(card => card.name === "Q" || card.name === "K");
@@ -609,6 +622,7 @@ async function takeCards() {
     }
 
     state.lastTaker = myPlayerId;
+    state.lastPlayedCard = playedCardInfo;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
@@ -630,6 +644,7 @@ async function takeCards() {
     }
 
     state.lastTaker = myPlayerId;
+    state.lastPlayedCard = playedCardInfo;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
@@ -651,6 +666,7 @@ async function takeCards() {
     }
 
     state.lastTaker = myPlayerId;
+    state.lastPlayedCard = playedCardInfo;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
@@ -671,6 +687,7 @@ async function takeCards() {
   }
 
   state.lastTaker = myPlayerId;
+  state.lastPlayedCard = playedCardInfo;
   state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
   endTurnInState(state);
 
@@ -749,6 +766,7 @@ async function dropCard() {
   }
 
   state.tableCards.push(cardToDrop);
+  state.lastPlayedCard = createPlayedCardInfo(cardToDrop, myPlayerId, "drop");
 
   state.players[myPlayerId].cards = state.players[myPlayerId].cards.filter(card => {
     return card.id !== cardToDrop.id;
@@ -1003,6 +1021,82 @@ function closeHistoryPanel() {
 
 function getPlayerName(playerId) {
   return playerId === "player1" ? "მოთამაშე 1" : "მოთამაშე 2";
+}
+
+function createActionId() {
+  if (crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random()}`;
+}
+
+function createPlayedCardInfo(card, playerId, action) {
+  return {
+    actionId: createActionId(),
+    name: card.name,
+    suit: card.suit,
+    color: card.color,
+    by: playerId,
+    action
+  };
+}
+
+function maybeShowPlayedCardAnimation() {
+  if (!gameState || !gameState.lastPlayedCard) {
+    firstSnapshotReceived = true;
+    return;
+  }
+
+  const playedCard = gameState.lastPlayedCard;
+
+  if (!playedCard.actionId) {
+    firstSnapshotReceived = true;
+    return;
+  }
+
+  if (!firstSnapshotReceived) {
+    firstSnapshotReceived = true;
+    lastAnimatedActionId = playedCard.actionId;
+    return;
+  }
+
+  if (playedCard.actionId === lastAnimatedActionId) {
+    return;
+  }
+
+  lastAnimatedActionId = playedCard.actionId;
+  showPlayedCardAnimation(playedCard);
+}
+
+function showPlayedCardAnimation(card) {
+  if (!playedCardAnimation) return;
+
+  playedCardAnimation.innerHTML = "";
+
+  const cardDiv = document.createElement("div");
+  cardDiv.className = "floating-played-card";
+
+  if (card.color === "red") {
+    cardDiv.classList.add("red");
+  }
+
+  cardDiv.textContent = `${card.name}${card.suit}`;
+
+  playedCardAnimation.appendChild(cardDiv);
+
+  playedCardAnimation.classList.remove("hidden");
+  playedCardAnimation.classList.remove("show");
+
+  void playedCardAnimation.offsetWidth;
+
+  playedCardAnimation.classList.add("show");
+
+  setTimeout(() => {
+    playedCardAnimation.classList.add("hidden");
+    playedCardAnimation.classList.remove("show");
+    playedCardAnimation.innerHTML = "";
+  }, 1100);
 }
 
 function showLocalMessage(text) {
