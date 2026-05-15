@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ფურთი</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
-  <!-- Lobby screen -->
   <div id="lobbyScreen" class="lobby-screen">
     <div class="lobby-card">
       <h1>ფურთი</h1>
@@ -16,74 +15,75 @@
         შექმენი ოთახი ან შეუერთდი მეგობარს ოთახის კოდით.
       </p>
 
-      <div class="lobby-actions">
-        <button id="createRoomBtn">ოთახის შექმნა</button>
+      <div class="round-select-box">
+        <label for="roundSelect">რაუნდების რაოდენობა</label>
+        <select id="roundSelect">
+          <option value="3">3 რაუნდი</option>
+          <option value="5">5 რაუნდი</option>
+          <option value="7">7 რაუნდი</option>
+          <option value="9">9 რაუნდი</option>
+          <option value="11">11 რაუნდი</option>
+          <option value="13" selected>13 რაუნდი</option>
+        </select>
+      </div>
 
-        <div class="join-box">
-          <input id="roomCodeInput" type="text" placeholder="ოთახის კოდი" />
-          <button id="joinRoomBtn">ოთახში შესვლა</button>
-        </div>
+      <button id="createRoomBtn" class="primary-btn">ოთახის შექმნა</button>
+
+      <div class="join-box">
+        <input id="roomCodeInput" type="text" placeholder="ოთახის კოდი" />
+        <button id="joinRoomBtn">ოთახში შესვლა</button>
       </div>
 
       <div id="lobbyMessage" class="lobby-message rules-box">
-  <div class="rules-title">თამაშის მოკლე წესები</div>
+        <div class="rules-title">თამაშის მოკლე წესები</div>
 
-  <div class="rules-text">
-    აირჩიე შენი კარტი და მაგიდიდან ერთი ან რამდენიმე კარტი.  
-    თუ ჯამი გამოვა <strong>11</strong> - კარტებს წაიღებ.
-  </div>
+        <div class="rules-text">
+          აირჩიე შენი კარტი და მაგიდიდან ერთი ან რამდენიმე კარტი.
+          თუ ჯამი გამოვა <strong>11</strong> — კარტებს წაიღებ.
+        </div>
 
-  <div class="rules-points">
-    <span>მეტი კარტი: <strong>2 ქულა</strong></span>
-    <span>მეტი ჯვარი: <strong>1 ქულა</strong></span>
-    <span>კაი ორიანი: <strong>1 ქულა</strong></span>
-    <span>კაი ათიანი: <strong>1 ქულა</strong></span>
-  </div>
-</div>
+        <div class="rules-points">
+          <span>მეტი კარტი: <strong>2 ქულა</strong></span>
+          <span>მეტი ჯვარი: <strong>1 ქულა</strong></span>
+          <span>კაი ორიანი: <strong>1 ქულა</strong></span>
+          <span>კაი ათიანი: <strong>1 ქულა</strong></span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Game screen -->
   <div id="gameScreen" class="game hidden">
     <h1>ფურთი</h1>
 
     <div class="room-info">
-      <div>ოთახი: <span id="roomCodeDisplay">----</span></div>
-      <div>შენ ხარ: <span id="playerRoleDisplay">----</span></div>
+      <span>ოთახი: <strong id="roomCodeDisplay">-</strong></span>
+      <span>შენ ხარ: <strong id="playerRoleDisplay">-</strong></span>
     </div>
 
     <div class="info">
       <p>
         აირჩიე შენი ერთი კარტი და მაგიდიდან ერთი ან რამდენიმე კარტი.
-        თუ ჯამი გამოვა 11 - წაიღებ.
+        თუ ჯამი გამოვა 11 — წაიღებ.
       </p>
-      <p id="message">თამაში დაიწყო</p>
+      <p id="message" class="message">თამაში იწყება...</p>
     </div>
 
     <div class="score-panel">
-      <div class="player-box player-you">
+      <div class="player-box player-main">
         <div class="player-title">შენ</div>
-
-        <div class="rounds-won">
-          <span id="playerRoundsCount">0</span>
-        </div>
-
+        <div id="playerRoundsCount" class="rounds-won">0</div>
         <div class="small-label">მოგებული რაუნდი</div>
-
         <div class="taken-badge">
           აღებული კარტები: <span id="playerTakenCount">0</span>
         </div>
       </div>
 
       <div class="center-box">
-        <div class="round-box">
-          <div class="small-label">რაუნდი</div>
-
-          <div class="round-value">
-            <span id="roundCount">1</span><span class="round-total">/13</span>
-          </div>
+        <div class="round-label">რაუნდი</div>
+        <div class="round-number">
+          <span id="roundCount" class="round-value">1</span>
+          <span class="round-total">/<span id="maxRoundCount">13</span></span>
         </div>
-
         <div class="deck-box">
           დასტაში დარჩა: <span id="deckCount">0</span>
         </div>
@@ -91,13 +91,8 @@
 
       <div class="player-box player-opponent">
         <div class="player-title">მოწინააღმდეგე</div>
-
-        <div class="rounds-won">
-          <span id="computerRoundsCount">0</span>
-        </div>
-
+        <div id="computerRoundsCount" class="rounds-won">0</div>
         <div class="small-label">მოგებული რაუნდი</div>
-
         <div class="taken-badge">
           აღებული კარტები: <span id="computerTakenCount">0</span>
         </div>
@@ -137,6 +132,6 @@
     </div>
   </div>
 
-  <script type="module" src="script.js?v=2"></script>
+  <script type="module" src="script.js?v=4"></script>
 </body>
 </html>
