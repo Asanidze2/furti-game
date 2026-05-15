@@ -140,8 +140,49 @@ function createEmptyRoomState(code) {
   };
 }
 
+function toArray(value) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (!value) {
+    return [];
+  }
+
+  return Object.values(value);
+}
+
+function normalizeGameState(state) {
+  if (!state) return state;
+
+  state.deck = toArray(state.deck);
+  state.tableCards = toArray(state.tableCards);
+  state.roundHistory = toArray(state.roundHistory);
+
+  if (!state.players) {
+    state.players = {};
+  }
+
+  if (!state.players.player1) {
+    state.players.player1 = {};
+  }
+
+  if (!state.players.player2) {
+    state.players.player2 = {};
+  }
+
+  for (let playerId of ["player1", "player2"]) {
+    state.players[playerId].cards = toArray(state.players[playerId].cards);
+    state.players[playerId].takenCards = toArray(state.players[playerId].takenCards);
+    state.players[playerId].roundsWon = state.players[playerId].roundsWon || 0;
+    state.players[playerId].joined = Boolean(state.players[playerId].joined);
+  }
+
+  return state;
+}
+
 function cloneState(state) {
-  return JSON.parse(JSON.stringify(state));
+  return normalizeGameState(JSON.parse(JSON.stringify(state)));
 }
 
 async function createRoom() {
@@ -194,7 +235,7 @@ async function joinRoom() {
       return;
     }
 
-    const room = snapshot.val();
+    const room = normalizeGameState(snapshot.val());
 
     if (room.players.player2.joined) {
       lobbyMessage.textContent = "ეს ოთახი უკვე სავსეა";
@@ -236,7 +277,7 @@ function listenToRoom(code) {
       return;
     }
 
-    gameState = snapshot.val();
+    gameState = normalizeGameState(snapshot.val());
 
     roomCodeDisplay.textContent = gameState.code || code;
     playerRoleDisplay.textContent = myPlayerId === "player1" ? "მოთამაშე 1" : "მოთამაშე 2";
@@ -255,6 +296,7 @@ function listenToRoom(code) {
 async function saveState(state) {
   if (!roomCode) return;
 
+  normalizeGameState(state);
   await set(ref(database, `rooms/${roomCode}`), state);
 }
 
@@ -301,6 +343,8 @@ function shuffleDeck(deck) {
 }
 
 function startNewGameInState(state) {
+  normalizeGameState(state);
+
   state.currentRound = 1;
   state.roundHistory = [];
   state.players.player1.roundsWon = 0;
@@ -312,6 +356,8 @@ function startNewGameInState(state) {
 }
 
 function startRoundInState(state) {
+  normalizeGameState(state);
+
   state.deck = [];
   state.tableCards = [];
 
@@ -338,6 +384,8 @@ function startRoundInState(state) {
 }
 
 function dealNewHandIfNeededInState(state) {
+  normalizeGameState(state);
+
   const player1HasNoCards = state.players.player1.cards.length === 0;
   const player2HasNoCards = state.players.player2.cards.length === 0;
 
@@ -349,6 +397,8 @@ function dealNewHandIfNeededInState(state) {
 }
 
 function replaceJacksOnTableInState(state) {
+  normalizeGameState(state);
+
   for (let i = 0; i < state.tableCards.length; i++) {
     if (state.tableCards[i].name === "J" && state.deck.length > 0) {
       state.deck.push(state.tableCards[i]);
@@ -365,6 +415,7 @@ function replaceJacksOnTableInState(state) {
 function renderCards() {
   if (!gameState || !myPlayerId) return;
 
+  normalizeGameState(gameState);
   updateOpponentId();
 
   playerCardsDiv.innerHTML = "";
@@ -530,7 +581,6 @@ async function takeCards() {
 
   const state = cloneState(gameState);
   const playerRank = selectedPlayerCard.name;
-
   const playedCardText = `${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
 
   if (playerRank === "J") {
@@ -541,7 +591,12 @@ async function takeCards() {
       return;
     }
 
-    captureCardsInState(state, myPlayerId);
+    const captured = captureCardsInState(state, myPlayerId);
+
+    if (!captured) {
+      return;
+    }
+
     state.lastTaker = myPlayerId;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
@@ -557,7 +612,12 @@ async function takeCards() {
       return;
     }
 
-    captureCardsInState(state, myPlayerId);
+    const captured = captureCardsInState(state, myPlayerId);
+
+    if (!captured) {
+      return;
+    }
+
     state.lastTaker = myPlayerId;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
@@ -573,7 +633,12 @@ async function takeCards() {
       return;
     }
 
-    captureCardsInState(state, myPlayerId);
+    const captured = captureCardsInState(state, myPlayerId);
+
+    if (!captured) {
+      return;
+    }
+
     state.lastTaker = myPlayerId;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
@@ -588,7 +653,12 @@ async function takeCards() {
     return;
   }
 
-  captureCardsInState(state, myPlayerId);
+  const captured = captureCardsInState(state, myPlayerId);
+
+  if (!captured) {
+    return;
+  }
+
   state.lastTaker = myPlayerId;
   state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
   endTurnInState(state);
@@ -597,17 +667,45 @@ async function takeCards() {
 }
 
 function captureCardsInState(state, playerId) {
-  const handCard = state.players[playerId].cards.find(card => card.id === selectedPlayerCard.id);
+  normalizeGameState(state);
+
+  if (!selectedPlayerCard) {
+    showLocalMessage("შეცდომა: არჩეული კარტი ვერ მოიძებნა");
+    return false;
+  }
+
   const selectedIds = selectedTableCards.map(card => card.id);
+
+  const handCard =
+    state.players[playerId].cards.find(card => card.id === selectedPlayerCard.id) ||
+    selectedPlayerCard;
+
   const tableCardsToTake = state.tableCards.filter(card => selectedIds.includes(card.id));
+
+  if (!handCard) {
+    showLocalMessage("შეცდომა: არჩეული კარტი ვერ მოიძებნა");
+    return false;
+  }
+
+  if (tableCardsToTake.length === 0) {
+    showLocalMessage("შეცდომა: მაგიდის არჩეული კარტები ვერ მოიძებნა");
+    return false;
+  }
 
   state.players[playerId].takenCards.push(handCard, ...tableCardsToTake);
 
-  state.players[playerId].cards = state.players[playerId].cards.filter(card => card.id !== selectedPlayerCard.id);
-  state.tableCards = state.tableCards.filter(card => !selectedIds.includes(card.id));
+  state.players[playerId].cards = state.players[playerId].cards.filter(card => {
+    return card.id !== handCard.id;
+  });
+
+  state.tableCards = state.tableCards.filter(card => {
+    return !selectedIds.includes(card.id);
+  });
 
   selectedPlayerCard = null;
   selectedTableCards = [];
+
+  return true;
 }
 
 async function dropCard() {
@@ -635,10 +733,17 @@ async function dropCard() {
 
   const state = cloneState(gameState);
 
-  const cardToDrop = state.players[myPlayerId].cards.find(card => card.id === selectedPlayerCard.id);
+  const cardToDrop =
+    state.players[myPlayerId].cards.find(card => card.id === selectedPlayerCard.id) ||
+    selectedPlayerCard;
+
+  if (!cardToDrop) {
+    showLocalMessage("შეცდომა: დასადები კარტი ვერ მოიძებნა");
+    return;
+  }
 
   state.tableCards.push(cardToDrop);
-  state.players[myPlayerId].cards = state.players[myPlayerId].cards.filter(card => card.id !== selectedPlayerCard.id);
+  state.players[myPlayerId].cards = state.players[myPlayerId].cards.filter(card => card.id !== cardToDrop.id);
 
   state.lastActionText = `${getPlayerName(myPlayerId)}-მა კარტი დადო: ${cardToDrop.name}${cardToDrop.suit}`;
 
@@ -651,6 +756,8 @@ async function dropCard() {
 }
 
 function endTurnInState(state) {
+  normalizeGameState(state);
+
   dealNewHandIfNeededInState(state);
   replaceJacksOnTableInState(state);
 
@@ -663,6 +770,8 @@ function endTurnInState(state) {
 }
 
 function isRoundOverInState(state) {
+  normalizeGameState(state);
+
   return (
     state.deck.length === 0 &&
     state.players.player1.cards.length === 0 &&
@@ -671,6 +780,8 @@ function isRoundOverInState(state) {
 }
 
 function finishRoundInState(state) {
+  normalizeGameState(state);
+
   if (state.roundFinished) return;
 
   state.roundFinished = true;
@@ -724,7 +835,7 @@ function maybeScheduleNextRound() {
 
     if (!roomSnapshot.exists()) return;
 
-    const latestState = roomSnapshot.val();
+    const latestState = normalizeGameState(roomSnapshot.val());
 
     if (!latestState.roundFinished || latestState.gameFinished) return;
 
@@ -736,6 +847,8 @@ function maybeScheduleNextRound() {
 }
 
 function giveRemainingTableCardsToLastTakerInState(state) {
+  normalizeGameState(state);
+
   if (state.tableCards.length === 0) return;
 
   if (state.lastTaker === "player1" || state.lastTaker === "player2") {
@@ -746,6 +859,8 @@ function giveRemainingTableCardsToLastTakerInState(state) {
 }
 
 function calculateRoundResultInState(state) {
+  normalizeGameState(state);
+
   let player1Score = 0;
   let player2Score = 0;
 
@@ -825,11 +940,11 @@ function getFinalMessage() {
 }
 
 function countSuit(cards, suit) {
-  return cards.filter(card => card.suit === suit).length;
+  return toArray(cards).filter(card => card.suit === suit).length;
 }
 
 function hasCard(cards, name, suit) {
-  return cards.some(card => card.name === name && card.suit === suit);
+  return toArray(cards).some(card => card.name === name && card.suit === suit);
 }
 
 function renderHistory() {
@@ -837,12 +952,14 @@ function renderHistory() {
 
   historyList.innerHTML = "";
 
-  if (!gameState.roundHistory || gameState.roundHistory.length === 0) {
+  const history = toArray(gameState.roundHistory);
+
+  if (history.length === 0) {
     historyList.innerHTML = `<p class="empty-history">ისტორია ჯერ ცარიელია</p>`;
     return;
   }
 
-  gameState.roundHistory.forEach(item => {
+  history.forEach(item => {
     const div = document.createElement("div");
     div.className = "history-item";
 
