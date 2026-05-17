@@ -53,6 +53,10 @@ let selectedTableCards = [];
 let lastAnimatedActionId = null;
 let firstSnapshotReceived = false;
 
+let lastAnimatedCaptureId = null;
+let firstCaptureSnapshotReceived = false;
+let animatingDropActionId = null;
+
 const lobbyScreen = document.getElementById("lobbyScreen");
 const gameScreen = document.getElementById("gameScreen");
 
@@ -72,6 +76,7 @@ const tableCardsDiv = document.getElementById("tableCards");
 
 const message = document.getElementById("message");
 const playedCardAnimation = document.getElementById("playedCardAnimation");
+const captureAnimation = document.getElementById("captureAnimation");
 
 const roundCount = document.getElementById("roundCount");
 const maxRoundCount = document.getElementById("maxRoundCount");
@@ -132,6 +137,7 @@ function createEmptyRoomState(code, maxRounds = 13) {
     roundHistory: [],
     lastActionText: "ველოდებით მეორე მოთამაშეს",
     lastPlayedCard: null,
+    captureAnimation: null,
     players: {
       player1: {
         joined: true,
@@ -222,6 +228,9 @@ async function createRoom() {
 
     lastAnimatedActionId = null;
     firstSnapshotReceived = false;
+    lastAnimatedCaptureId = null;
+    firstCaptureSnapshotReceived = false;
+    animatingDropActionId = null;
 
     const selectedMaxRounds = Math.min(13, Math.max(1, Number(roundSelect.value) || 13));
     const emptyRoom = createEmptyRoomState(code, selectedMaxRounds);
@@ -230,6 +239,10 @@ async function createRoom() {
 
     roomCodeDisplay.textContent = roomCode;
     playerRoleDisplay.textContent = "მოთამაშე 1";
+
+    if (roomInfo) {
+      roomInfo.classList.remove("hidden-room-info");
+    }
 
     showGame();
     listenToRoom(roomCode);
@@ -270,6 +283,9 @@ async function joinRoom() {
 
     lastAnimatedActionId = null;
     firstSnapshotReceived = false;
+    lastAnimatedCaptureId = null;
+    firstCaptureSnapshotReceived = false;
+    animatingDropActionId = null;
 
     startNewGameInState(room);
 
@@ -312,10 +328,16 @@ function listenToRoom(code) {
     selectedPlayerCard = null;
     selectedTableCards = [];
 
+    const playedCardToAnimate = preparePlayedCardAnimation();
+
     renderCards();
     renderStatusMessage();
-    maybeShowPlayedCardAnimation();
 
+    if (playedCardToAnimate) {
+      showPlayedCardAnimation(playedCardToAnimate);
+    }
+
+    maybeShowCaptureAnimation();
     maybeScheduleNextRound();
   });
 }
@@ -350,7 +372,7 @@ function createDeck() {
   for (let suit of suits) {
     for (let rank of ranks) {
       newDeck.push({
-        id: crypto.randomUUID(),
+        id: createActionId(),
         name: rank.name,
         value: rank.value,
         suit: suit,
@@ -397,6 +419,8 @@ function startRoundInState(state) {
   state.lastTaker = null;
   state.roundFinished = false;
   state.gameFinished = false;
+  state.lastPlayedCard = null;
+  state.captureAnimation = null;
 
   state.deck = createDeck();
   shuffleDeck(state.deck);
@@ -456,6 +480,10 @@ function renderCards() {
   });
 
   gameState.tableCards.forEach(card => {
+    if (shouldHideTableCardDuringDropAnimation(card)) {
+      return;
+    }
+
     const cardElement = createCardElement(card);
 
     if (selectedTableCards.some(selected => selected.id === card.id)) {
@@ -541,23 +569,24 @@ function renderStatusMessage() {
   if (!gameState) return;
 
   if (gameState.status === "waiting") {
-    roomInfo.classList.remove("hidden-room-info");
+    if (roomInfo) {
+      roomInfo.classList.remove("hidden-room-info");
+    }
+
     showLocalMessage("ველოდებით მეორე მოთამაშეს");
     return;
   }
 
-  if (gameState.status === "playing") {
+  if (roomInfo && gameState.status === "playing") {
     roomInfo.classList.add("hidden-room-info");
   }
 
   if (gameState.gameFinished) {
-    roomInfo.classList.add("hidden-room-info");
     showLocalMessage(getFinalMessage());
     return;
   }
 
   if (gameState.roundFinished) {
-    roomInfo.classList.add("hidden-room-info");
     showLocalMessage(getRoundFinishedMessage());
     return;
   }
@@ -608,6 +637,12 @@ async function takeCards() {
   const playedCardText = `${selectedPlayerCard.name}${selectedPlayerCard.suit}`;
   const playedCardInfo = createPlayedCardInfo(selectedPlayerCard, myPlayerId, "take");
 
+  const captureAnimationInfo = createCaptureAnimationInfo(
+    myPlayerId,
+    selectedPlayerCard,
+    selectedTableCards
+  );
+
   if (playerRank === "J") {
     const hasQueenOrKing = selectedTableCards.some(card => card.name === "Q" || card.name === "K");
 
@@ -624,6 +659,7 @@ async function takeCards() {
 
     state.lastTaker = myPlayerId;
     state.lastPlayedCard = playedCardInfo;
+    state.captureAnimation = captureAnimationInfo;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
@@ -646,6 +682,7 @@ async function takeCards() {
 
     state.lastTaker = myPlayerId;
     state.lastPlayedCard = playedCardInfo;
+    state.captureAnimation = captureAnimationInfo;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
@@ -668,6 +705,7 @@ async function takeCards() {
 
     state.lastTaker = myPlayerId;
     state.lastPlayedCard = playedCardInfo;
+    state.captureAnimation = captureAnimationInfo;
     state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
     endTurnInState(state);
     await saveState(state);
@@ -689,6 +727,7 @@ async function takeCards() {
 
   state.lastTaker = myPlayerId;
   state.lastPlayedCard = playedCardInfo;
+  state.captureAnimation = captureAnimationInfo;
   state.lastActionText = `${getPlayerName(myPlayerId)}-მა წაიღო: ${playedCardText}`;
   endTurnInState(state);
 
@@ -1025,8 +1064,8 @@ function getPlayerName(playerId) {
 }
 
 function createActionId() {
-  if (crypto && crypto.randomUUID) {
-    return crypto.randomUUID();
+  if (globalThis.crypto && globalThis.crypto.randomUUID) {
+    return globalThis.crypto.randomUUID();
   }
 
   return `${Date.now()}-${Math.random()}`;
@@ -1035,6 +1074,7 @@ function createActionId() {
 function createPlayedCardInfo(card, playerId, action) {
   return {
     actionId: createActionId(),
+    cardId: card.id,
     name: card.name,
     suit: card.suit,
     color: card.color,
@@ -1043,31 +1083,184 @@ function createPlayedCardInfo(card, playerId, action) {
   };
 }
 
-function maybeShowPlayedCardAnimation() {
+function preparePlayedCardAnimation() {
   if (!gameState || !gameState.lastPlayedCard) {
     firstSnapshotReceived = true;
-    return;
+    return null;
   }
 
   const playedCard = gameState.lastPlayedCard;
 
   if (!playedCard.actionId) {
     firstSnapshotReceived = true;
-    return;
+    return null;
   }
 
   if (!firstSnapshotReceived) {
     firstSnapshotReceived = true;
     lastAnimatedActionId = playedCard.actionId;
-    return;
+    return null;
   }
 
   if (playedCard.actionId === lastAnimatedActionId) {
-    return;
+    return null;
   }
 
   lastAnimatedActionId = playedCard.actionId;
-  showPlayedCardAnimation(playedCard);
+
+  if (playedCard.action === "drop") {
+    animatingDropActionId = playedCard.actionId;
+    return playedCard;
+  }
+
+  return null;
+}
+
+function shouldHideTableCardDuringDropAnimation(card) {
+  if (!gameState || !gameState.lastPlayedCard) {
+    return false;
+  }
+
+  const playedCard = gameState.lastPlayedCard;
+
+  return (
+    animatingDropActionId &&
+    playedCard.action === "drop" &&
+    playedCard.actionId === animatingDropActionId &&
+    playedCard.cardId === card.id
+  );
+}
+
+function createSimpleCardInfo(card) {
+  return {
+    id: card.id,
+    name: card.name,
+    suit: card.suit,
+    color: card.color
+  };
+}
+
+function createCaptureAnimationInfo(playerId, playerCard, tableCards) {
+  return {
+    actionId: createActionId(),
+    by: playerId,
+    cards: [
+      createSimpleCardInfo(playerCard),
+      ...tableCards.map(createSimpleCardInfo)
+    ]
+  };
+}
+
+function maybeShowCaptureAnimation() {
+  if (!gameState || !gameState.captureAnimation) {
+    firstCaptureSnapshotReceived = true;
+    return;
+  }
+
+  const capture = gameState.captureAnimation;
+
+  if (!capture.actionId) {
+    firstCaptureSnapshotReceived = true;
+    return;
+  }
+
+  if (!firstCaptureSnapshotReceived) {
+    firstCaptureSnapshotReceived = true;
+    lastAnimatedCaptureId = capture.actionId;
+    return;
+  }
+
+  if (capture.actionId === lastAnimatedCaptureId) {
+    return;
+  }
+
+  lastAnimatedCaptureId = capture.actionId;
+  showCaptureAnimation(capture);
+}
+
+function getCaptureSpecialClass(card) {
+  if (card.name === "J") {
+    return "special-jack";
+  }
+
+  if (card.name === "2" && card.suit === "♣") {
+    return "special-good";
+  }
+
+  if (card.name === "10" && card.suit === "♦") {
+    return "special-good";
+  }
+
+  if (card.suit === "♣") {
+    return "special-club";
+  }
+
+  return "";
+}
+
+function showCaptureAnimation(capture) {
+  if (!captureAnimation) return;
+
+  captureAnimation.innerHTML = "";
+  captureAnimation.classList.remove("hidden");
+
+  const row = document.createElement("div");
+  row.className = "capture-cards-row";
+
+  capture.cards.forEach((card, index) => {
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "capture-card";
+    cardDiv.style.setProperty("--i", index);
+
+    if (card.color === "red") {
+      cardDiv.classList.add("red-card");
+    }
+
+    const specialClass = getCaptureSpecialClass(card);
+
+    if (specialClass) {
+      cardDiv.classList.add(specialClass);
+    }
+
+    cardDiv.textContent = `${card.name}${card.suit}`;
+    row.appendChild(cardDiv);
+  });
+
+  captureAnimation.appendChild(row);
+
+  setTimeout(() => {
+    const targetElement =
+      capture.by === myPlayerId
+        ? playerTakenCount.closest(".taken-badge")
+        : computerTakenCount.closest(".taken-badge");
+
+    if (!targetElement) {
+      captureAnimation.classList.add("hidden");
+      captureAnimation.innerHTML = "";
+      return;
+    }
+
+    const targetRect = targetElement.getBoundingClientRect();
+    const targetX = targetRect.left + targetRect.width / 2;
+    const targetY = targetRect.top + targetRect.height / 2;
+
+    row.classList.add("fly-stage");
+
+    row.querySelectorAll(".capture-card").forEach(cardElement => {
+      const rect = cardElement.getBoundingClientRect();
+      const cardX = rect.left + rect.width / 2;
+      const cardY = rect.top + rect.height / 2;
+
+      cardElement.style.setProperty("--fly-x", `${targetX - cardX}px`);
+      cardElement.style.setProperty("--fly-y", `${targetY - cardY}px`);
+      cardElement.classList.add("fly-to-pile");
+    });
+  }, 1150);
+
+  setTimeout(() => {
+    captureAnimation.classList.add("hidden");
+    captureAnimation.innerHTML = "";
+  }, 2150);
 }
 
 function showPlayedCardAnimation(card) {
@@ -1082,6 +1275,17 @@ function showPlayedCardAnimation(card) {
 
   playedCardAnimation.style.left = `${tableCenterX}px`;
   playedCardAnimation.style.top = `${tableCenterY}px`;
+
+  if (card.action === "drop") {
+    const screenCenterX = window.innerWidth / 2;
+    const screenCenterY = window.innerHeight / 2;
+
+    playedCardAnimation.style.setProperty("--start-x", `${screenCenterX - tableCenterX}px`);
+    playedCardAnimation.style.setProperty("--start-y", `${screenCenterY - tableCenterY}px`);
+  } else {
+    playedCardAnimation.style.setProperty("--start-x", "0px");
+    playedCardAnimation.style.setProperty("--start-y", "0px");
+  }
 
   const cardDiv = document.createElement("div");
   cardDiv.className = "floating-played-card";
@@ -1111,7 +1315,12 @@ function showPlayedCardAnimation(card) {
     playedCardAnimation.classList.add("hidden");
     playedCardAnimation.classList.remove("show");
     playedCardAnimation.innerHTML = "";
-  }, 1150);
+
+    if (card.action === "drop" && animatingDropActionId === card.actionId) {
+      animatingDropActionId = null;
+      renderCards();
+    }
+  }, 1200);
 }
 
 function showLocalMessage(text) {
