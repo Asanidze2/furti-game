@@ -1160,7 +1160,7 @@ button:disabled {
 .join-box {
   margin-top: 0;
 }
-/* ===== Played Card Animation: Table-Positioned Effect ===== */
+/* ===== Played Card Animation: Center To Table / Take Up ===== */
 
 .played-card-animation {
   position: fixed;
@@ -1199,66 +1199,61 @@ button:disabled {
 }
 
 .floating-played-card.drop-animation {
-  animation: cardDropIntoTable 1.15s ease-out forwards;
+  animation: cardDropFromCenterToTable 1.2s ease-out forwards;
 }
 
 .floating-played-card.take-animation {
-  animation: cardTakeFromTable 1.15s ease-out forwards;
+  animation: cardTakeFromTable 1.05s ease-out forwards;
 }
 
-/* კარტის დადება — ზემოდან მაგიდაზე ჩამოდის */
-@keyframes cardDropIntoTable {
+/* დადება: კარტი ჯერ ცენტრში დიდია, მერე მაგიდაზე ჯდება */
+@keyframes cardDropFromCenterToTable {
   0% {
     opacity: 0;
-    transform: translateY(-170px) scale(0.55) rotate(-14deg);
+    transform: translate(var(--start-x), var(--start-y)) scale(1.45) rotate(-6deg);
   }
 
-  25% {
+  18% {
     opacity: 1;
-    transform: translateY(-75px) scale(1.08) rotate(7deg);
+    transform: translate(var(--start-x), var(--start-y)) scale(1.45) rotate(-3deg);
   }
 
-  60% {
+  55% {
     opacity: 1;
-    transform: translateY(0) scale(1) rotate(0deg);
+    transform: translate(0, 0) scale(0.98) rotate(2deg);
   }
 
-  82% {
+  78% {
     opacity: 1;
-    transform: translateY(6px) scale(0.98) rotate(0deg);
+    transform: translate(0, 0) scale(0.9) rotate(0deg);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(14px) scale(0.92) rotate(0deg);
+    transform: translate(0, 0) scale(0.82) rotate(0deg);
   }
 }
 
-/* წაღება — მაგიდიდან ზემოთ ქრება */
+/* წაღება: კარტი მაგიდიდან ზემოთ ქრება */
 @keyframes cardTakeFromTable {
   0% {
     opacity: 0;
-    transform: translateY(28px) scale(0.65) rotate(0deg);
+    transform: translateY(25px) scale(0.7);
   }
 
   20% {
     opacity: 1;
-    transform: translateY(0) scale(1.16) rotate(-5deg);
+    transform: translateY(0) scale(1.15) rotate(-4deg);
   }
 
-  50% {
+  55% {
     opacity: 1;
-    transform: translateY(-18px) scale(1.05) rotate(4deg);
-  }
-
-  80% {
-    opacity: 1;
-    transform: translateY(-64px) scale(0.92) rotate(0deg);
+    transform: translateY(-24px) scale(1.05) rotate(3deg);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(-115px) scale(0.65) rotate(0deg);
+    transform: translateY(-115px) scale(0.62);
   }
 }
 
@@ -1302,4 +1297,132 @@ button:disabled {
 }
 .room-info.hidden-room-info {
   display: none;
+}
+/* ===== Capture Center Preview + Special Glow ===== */
+
+.capture-animation {
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+}
+
+.capture-animation.hidden {
+  display: none;
+}
+
+.capture-cards-row {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: min(92vw, 720px);
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(4, 42, 27, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  transition: background 0.25s ease, border 0.25s ease, box-shadow 0.25s ease;
+}
+
+.capture-cards-row.fly-stage {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.capture-card {
+  width: 78px;
+  height: 108px;
+  border-radius: 13px;
+  background: white;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
+  transform: scale(1.1);
+  animation: capturePreviewPop 0.32s ease-out both;
+}
+
+.capture-card.red-card {
+  color: #c9182b;
+}
+
+/* J — წითელი glow */
+.capture-card.special-jack {
+  border: 3px solid #ff3b3b;
+  box-shadow:
+    0 0 12px rgba(255, 59, 59, 0.95),
+    0 0 28px rgba(255, 59, 59, 0.65),
+    0 18px 42px rgba(0, 0, 0, 0.45);
+}
+
+/* 2♣ და 10♦ — მწვანე glow */
+.capture-card.special-good {
+  border: 3px solid #33ff88;
+  box-shadow:
+    0 0 12px rgba(51, 255, 136, 0.95),
+    0 0 28px rgba(51, 255, 136, 0.65),
+    0 18px 42px rgba(0, 0, 0, 0.45);
+}
+
+/* დანარჩენი ჯვრები — ლურჯი glow */
+.capture-card.special-club {
+  border: 3px solid #4da3ff;
+  box-shadow:
+    0 0 12px rgba(77, 163, 255, 0.95),
+    0 0 28px rgba(77, 163, 255, 0.65),
+    0 18px 42px rgba(0, 0, 0, 0.45);
+}
+
+.capture-card.fly-to-pile {
+  animation: captureFlyToPile 0.78s ease-in forwards;
+  animation-delay: calc(var(--i) * 75ms);
+}
+
+@keyframes capturePreviewPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.75) translateY(18px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.1) translateY(0);
+  }
+}
+
+@keyframes captureFlyToPile {
+  0% {
+    opacity: 1;
+    transform: scale(1.1) translate(0, 0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.18) translate(var(--fly-x), var(--fly-y));
+  }
+}
+
+@media (max-width: 600px) {
+  .capture-cards-row {
+    gap: 8px;
+    padding: 14px;
+    max-width: 94vw;
+  }
+
+  .capture-card {
+    width: 58px;
+    height: 80px;
+    font-size: 20px;
+    border-radius: 10px;
+  }
 }
